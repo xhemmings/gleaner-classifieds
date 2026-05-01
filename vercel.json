@@ -1,6 +1,6 @@
 {
-  "outputDirectory": "public",
-  "rewrites": [
-    { "source": "/data/(.*)", "destination": "/data/$1" }
-  ]
+  "framework": null,
+  "buildCommand": "",
+  "installCommand": "",
+  "outputDirectory": "public"
 }
