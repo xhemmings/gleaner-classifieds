@@ -1,0 +1,13 @@
+{
+  "name": "gleaner-v3",
+  "version": "3.0.0",
+  "description": "Gleaner classifieds extractor with page preview and selection",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

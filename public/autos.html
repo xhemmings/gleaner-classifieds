@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Classifieds — Gleaner v3</title>
+<script src="theme.js"></script>
+<link rel="stylesheet" href="viewer.css">
+<style>
+/* ── BRAND SECTIONS ── */
+.brand-section { margin-top: 32px; }
+.brand-section.hidden { display: none; }
+.brand-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 10px; padding-bottom: 10px;
+  border-bottom: 2px solid var(--blue);
+}
+.brand-name {
+  font-family: 'Bebas Neue', 'Playfair Display', serif;
+  font-size: 1.75rem; color: var(--blue);
+  letter-spacing: 0.06em; line-height: 1;
+}
+.brand-count-badge {
+  background: var(--blue); color: #fff; font-size: 10px; font-weight: 700;
+  padding: 2px 9px; border-radius: 10px; letter-spacing: 0.04em;
+}
+[data-theme="auto"] .brand-count-badge { color: #000; }
+.brand-vis-count { color: var(--muted); font-size: 12px; margin-left: auto; }
+
+/* ── AUTO TABLE COLUMN OVERRIDES ── */
+.auto-col-year    { font-weight: 600; color: var(--blue-mid); white-space: nowrap; }
+.auto-col-price   { font-weight: 700; color: #166534; white-space: nowrap; }
+.auto-col-notes   { color: #374151; font-size: 12px; max-width: 260px; line-height: 1.4; }
+.auto-col-phone, .auto-col-email { color: var(--muted); font-size: 12px; white-space: normal; }
+.auto-col-email .contact-email-link { font-size: 11.5px; }
+[data-theme="dark"] .auto-col-price  { color: #4ade80; }
+[data-theme="dark"] .auto-col-notes  { color: #8aa0c0; }
+[data-theme="dark"] .auto-col-phone,
+[data-theme="dark"] .auto-col-email  { color: #6a90b8; }
+[data-theme="dark"] .contact-email-link { color: #93c5fd; }
+[data-theme="auto"] .auto-col-price  { color: #6ee7a0; }
+[data-theme="auto"] .auto-col-notes  { color: #777; }
+[data-theme="auto"] .auto-col-year   { color: var(--blue); }
+[data-theme="auto"] .auto-col-phone,
+[data-theme="auto"] .auto-col-email  { color: #9a8840; }
+[data-theme="auto"] .contact-email-link { color: #e8c840; }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="/"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,2 5,9 8,9 7,14 11,7 8,7"/></svg> Extract</a>
+  <a href="browse.html"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="1" width="10" height="14" rx="1.5"/><line x1="5.5" y1="5" x2="10.5" y2="5"/><line x1="5.5" y1="8" x2="10.5" y2="8"/><line x1="5.5" y1="11" x2="8.5" y2="11"/></svg> Browse</a>
+  <a href="charts.html"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="8" width="3" height="6" rx="0.5"/><rect x="6.5" y="5" width="3" height="9" rx="0.5"/><rect x="11" y="2" width="3" height="12" rx="0.5"/></svg> Analytics</a>
+  <a href="autos.html" class="active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17h20v-4l-3-5H5L2 13v4z"/><path d="M6 8.5c1-2.5 2.5-4 4.5-4h3c2 0 3.5 1.5 4.5 4"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M2 13h20"/></svg> Autos</a>
+  <div class="theme-swatches">
+    <button class="tsw" data-theme="light" title="Gleaner Light"></button>
+    <button class="tsw" data-theme="dark"  title="Night Blue"></button>
+    <button class="tsw" data-theme="auto"  title="Auto Gold"></button>
+  </div>
+</nav>
+
+<header class="site-header">
+  <div class="masthead">
+    <h1>Auto <em>Classifieds</em></h1>
+    <div class="meta" id="header-meta">Sunday Gleaner &nbsp;·&nbsp; Vehicles</div>
+  </div>
+  <div class="header-right">
+    <div class="count-display"><span id="visibleCount">—</span>listings</div>
+  </div>
+</header>
+
+<div class="filter-panel">
+  <div class="filter-group">
+    <div class="filter-group-label">Brand <button id="clear-brand">Clear</button></div>
+    <div class="checkbox-list" id="brand-list"></div>
+  </div>
+  <div class="filter-group">
+    <div class="filter-group-label">Type <button id="clear-type">Clear</button></div>
+    <div class="checkbox-list" id="type-list"></div>
+  </div>
+  <div class="filter-group">
+    <div class="filter-group-label">Parish <button id="clear-loc">Clear</button></div>
+    <div class="checkbox-list" id="loc-list"></div>
+  </div>
+  <div class="filter-group" style="min-width:130px;flex:0 0 auto;">
+    <div class="filter-group-label">Year <button id="clear-year">Clear</button></div>
+    <div class="range-row"><label>From</label><select id="year-min"></select></div>
+    <div class="range-row"><label>To</label><select id="year-max"></select></div>
+  </div>
+  <div class="filter-group" style="min-width:160px;flex:0 0 auto;">
+    <div class="filter-group-label">Price (JMD) <button id="clear-price">Clear</button></div>
+    <div class="range-row"><label>Min</label><input type="number" id="price-min" class="price-input" placeholder="e.g. 1000000" min="0" step="50000"></div>
+    <div class="range-row"><label>Max</label><input type="number" id="price-max" class="price-input" placeholder="e.g. 10000000" min="0" step="50000"></div>
+  </div>
+</div>
+
+<div class="search-row">
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="search" placeholder="Search title, notes, location…">
+  </div>
+  <div class="active-filters" id="active-pills"></div>
+  <button class="btn-clear-all" id="clear-all">Clear all</button>
+</div>
+
+<div class="table-wrap">
+  <div id="loading" class="loading">
+    <div class="loading-spinner"></div>
+    Loading vehicle listings…
+  </div>
+  <div id="no-results" class="no-results"><big>NO RESULTS</big>Try adjusting your filters.</div>
+  <div id="autos-container"></div>
+</div>
+
+<footer class="site-footer">
+  <span id="footer-edition">Gleaner Auto Classifieds</span>
+  <span>Prices in Jamaican Dollars unless otherwise noted</span>
+</footer>
+
+<script src="classifieds-lib.js"></script>
+<script>
+const KNOWN_BRANDS = [
+  'Toyota','Honda','Nissan','Mitsubishi','Mazda','Hyundai','Kia','Suzuki','Subaru','Isuzu',
+  'BMW','Mercedes-Benz','Mercedes','Audi','Volkswagen','Porsche','Volvo','Land Rover',
+  'Range Rover','Lexus','Infiniti','Acura','Saab','Mini',
+  'Ford','Chevrolet','Dodge','Jeep','RAM','GMC','Cadillac','Buick','Chrysler','Lincoln',
+  'Peugeot','Renault','Fiat','Alfa Romeo','Opel','VW',
+  'Daihatsu','Chery','BYD','JAC','Great Wall','Haval','DFSK','Geely','SsangYong',
+];
+
+
+function parseVehicle(item) {
+  const t = item.title || '';
+  const yearMatch = t.match(/\b(19[5-9]\d|20[0-2]\d)\b/);
+  const year = yearMatch ? parseInt(yearMatch[1]) : null;
+  const upper = t.toUpperCase();
+  let brand = null;
+  for (const b of KNOWN_BRANDS) {
+    if (upper.includes(b.toUpperCase())) { brand = b; break; }
+  }
+  return { ...item, _brand: brand || 'Other', _year: year };
+}
+
+let allData = [];
+const active = {
+  brands: new Set(), types: new Set(), parishes: new Set(),
+  yearMin: null, yearMax: null, priceMin: null, priceMax: null, search: ''
+};
+
+function match(item) {
+  if (active.brands.size   > 0 && !active.brands.has(item._brand))   return false;
+  if (active.types.size    > 0 && !active.types.has(item.type))       return false;
+  if (active.parishes.size > 0 && !active.parishes.has(item.parish))  return false;
+  if (active.yearMin && (!item._year || item._year < active.yearMin))  return false;
+  if (active.yearMax && (!item._year || item._year > active.yearMax))  return false;
+  if (active.priceMin !== null && (item.price_jmd === null || item.price_jmd < active.priceMin)) return false;
+  if (active.priceMax !== null && (item.price_jmd === null || item.price_jmd > active.priceMax)) return false;
+  if (active.search) {
+    const hay = [item.title, item.notes, contactStr(item.contact), item.parish, item.price_text, item._brand].join(' ').toLowerCase();
+    if (!hay.includes(active.search)) return false;
+  }
+  return true;
+}
+
+function applyFilters() {
+  active.search   = document.getElementById('search').value.toLowerCase().trim();
+  const pMin = document.getElementById('price-min').value;
+  const pMax = document.getElementById('price-max').value;
+  active.priceMin = pMin !== '' ? parseFloat(pMin) : null;
+  active.priceMax = pMax !== '' ? parseFloat(pMax) : null;
+  active.yearMin  = document.getElementById('year-min').value ? parseInt(document.getElementById('year-min').value) : null;
+  active.yearMax  = document.getElementById('year-max').value ? parseInt(document.getElementById('year-max').value) : null;
+
+  let total = 0;
+  document.querySelectorAll('#autos-container .brand-section').forEach(sec => {
+    const rows = sec.querySelectorAll('tbody tr[data-id]');
+    let vis = 0;
+    rows.forEach(row => {
+      const item = allData.find(d => d.id === parseInt(row.dataset.id));
+      const show = item ? match(item) : false;
+      row.classList.toggle('hidden', !show);
+      if (show) vis++;
+    });
+    sec.classList.toggle('hidden', vis === 0);
+    const vc  = sec.querySelector('.brand-vis-count');
+    const tot = parseInt(sec.querySelector('.brand-count-badge').textContent);
+    if (vc) vc.textContent = vis === tot ? '' : vis + ' of ' + tot + ' shown';
+    total += vis;
+  });
+
+  document.getElementById('visibleCount').textContent = total;
+  document.getElementById('no-results').classList.toggle('visible', total === 0);
+  refreshCheckboxStates();
+  renderActivePills();
+}
+
+function refreshCheckboxStates() {
+  const brandCounts = {}, typeCounts = {}, locCounts = {};
+  allData.forEach(d => {
+    if (match(d)) {
+      brandCounts[d._brand] = (brandCounts[d._brand] || 0) + 1;
+      if (d.type)   typeCounts[d.type]   = (typeCounts[d.type]   || 0) + 1;
+      if (d.parish) locCounts[d.parish]  = (locCounts[d.parish]  || 0) + 1;
+    }
+  });
+  refreshCheckboxGroup('brand-list', brandCounts, active.brands);
+  refreshCheckboxGroup('type-list',  typeCounts,  active.types);
+  refreshCheckboxGroup('loc-list',   locCounts,   active.parishes);
+}
+
+function renderActivePills() {
+  const el = document.getElementById('active-pills');
+  el.innerHTML = '';
+  const pill = (html, onX) => {
+    const p = document.createElement('span');
+    p.className = 'filter-pill';
+    p.innerHTML = html + ' <span class="x">\u00d7</span>';
+    p.addEventListener('click', onX);
+    return p;
+  };
+  active.brands.forEach(v   => el.appendChild(pill(esc(v), () => { active.brands.delete(v);   uncheckCb('brand', v); applyFilters(); })));
+  active.types.forEach(v    => el.appendChild(pill(esc(v), () => { active.types.delete(v);    uncheckCb('type',  v); applyFilters(); })));
+  active.parishes.forEach(v => el.appendChild(pill(esc(v), () => { active.parishes.delete(v); uncheckCb('loc',   v); applyFilters(); })));
+  if (active.yearMin || active.yearMax) {
+    const lbl = (active.yearMin || '—') + '\u2013' + (active.yearMax || '—');
+    el.appendChild(pill('Year: ' + lbl, () => {
+      active.yearMin = null; active.yearMax = null;
+      document.getElementById('year-min').value = '';
+      document.getElementById('year-max').value = '';
+      applyFilters();
+    }));
+  }
+  if (active.priceMin || active.priceMax) {
+    el.appendChild(pill('Price filter', () => {
+      document.getElementById('price-min').value = '';
+      document.getElementById('price-max').value = '';
+      applyFilters();
+    }));
+  }
+  if (active.search) el.appendChild(pill('\u201c' + esc(active.search) + '\u201d', () => { active.search = ''; document.getElementById('search').value = ''; applyFilters(); }));
+}
+
+function uncheckCb(group, value) {
+  const cb = document.querySelector('[data-group="' + group + '"][data-value="' + CSS.escape(value) + '"]');
+  if (cb) cb.checked = false;
+}
+
+function buildTable(vehicles) {
+  const container = document.getElementById('autos-container');
+  container.innerHTML = '';
+  const grouped = {};
+  vehicles.forEach(item => { (grouped[item._brand] || (grouped[item._brand] = [])).push(item); });
+  const brands = Object.keys(grouped).sort((a, b) => {
+    if (a === 'Other') return 1; if (b === 'Other') return -1;
+    return grouped[b].length - grouped[a].length;
+  });
+  brands.forEach(brand => {
+    const items = grouped[brand];
+    const sec = document.createElement('div');
+    sec.className = 'brand-section';
+    sec.dataset.brand = brand;
+    const hdr = document.createElement('div');
+    hdr.className = 'brand-header';
+    hdr.innerHTML =
+      '<span class="brand-name">' + esc(brand) + '</span>' +
+      '<span class="brand-count-badge">' + items.length + '</span>' +
+      '<span class="brand-vis-count"></span>';
+    const tbl = document.createElement('table');
+    const tbody = document.createElement('tbody');
+    tbl.innerHTML = '<thead><tr><th>Title / Model</th><th>Year</th><th>Type</th><th>Parish</th><th>Price</th><th>Notes</th><th>Phone</th><th>Email</th></tr></thead>';
+    items.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.dataset.id = item.id;
+      const notes = item.notes && item.notes.length > 90 ? item.notes.slice(0, 90) + '\u2026' : (item.notes || '');
+      tr.innerHTML =
+        '<td class="col-title">'          + esc(item.title)      + '</td>' +
+        '<td class="auto-col-year">'      + (item._year || '\u2014') + '</td>' +
+        '<td><span class="badge badge-' + esc(item.type) + '">' + esc(item.type) + '</span></td>' +
+        '<td class="col-loc">'            + esc(item.parish)     + '</td>' +
+        '<td class="auto-col-price">'     + esc(item.price_text) + '</td>' +
+        '<td class="auto-col-notes">'     + esc(notes)           + '</td>' +
+        '<td class="auto-col-phone">'     + formatPhones(item.contact) + '</td>' +
+        '<td class="auto-col-email">'     + formatEmails(item.contact) + '</td>';
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+    sec.appendChild(hdr);
+    sec.appendChild(tbl);
+    container.appendChild(sec);
+  });
+}
+
+function buildYearSelects(years) {
+  const sorted = [...years].sort((a, b) => a - b);
+  ['year-min','year-max'].forEach(id => {
+    const sel = document.getElementById(id);
+    const o0 = document.createElement('option'); o0.value = ''; o0.textContent = 'Any'; sel.appendChild(o0);
+    sorted.forEach(y => { const o = document.createElement('option'); o.value = y; o.textContent = y; sel.appendChild(o); });
+  });
+}
+
+function clearGroup(group, set) {
+  set.clear();
+  document.querySelectorAll('[data-group="' + group + '"]').forEach(c => c.checked = false);
+  applyFilters();
+}
+
+function clearAll() {
+  active.brands.clear(); active.types.clear(); active.parishes.clear();
+  active.yearMin = null; active.yearMax = null; active.priceMin = null; active.priceMax = null;
+  active.search = '';
+  document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+  document.getElementById('search').value = '';
+  document.getElementById('price-min').value = '';
+  document.getElementById('price-max').value = '';
+  document.getElementById('year-min').value = '';
+  document.getElementById('year-max').value = '';
+  applyFilters();
+}
+
+async function init() {
+  try {
+    const json = await fetchClassifieds();
+    const vehicles = (json.records || []).filter(d => d.cat === 'Vehicles').map(parseVehicle);
+    allData = vehicles;
+    const meta = json.meta || {};
+    if (meta.edition) {
+      document.getElementById('header-meta').innerHTML =
+        'Sunday Gleaner &nbsp;·&nbsp; <b>' + esc(meta.edition) + '</b> &nbsp;·&nbsp; Vehicles';
+      document.getElementById('footer-edition').textContent =
+        'Source: Sunday Gleaner \u2014 ' + meta.edition + ' \u00b7 Auto Classifieds';
+    }
+
+    const brands   = [...new Set(vehicles.map(d => d._brand))].sort((a, b) => {
+      if (a === 'Other') return 1; if (b === 'Other') return -1; return a.localeCompare(b);
+    });
+    const types    = [...new Set(vehicles.map(d => d.type).filter(Boolean))].sort();
+    const parishes = [...new Set(vehicles.map(d => d.parish).filter(Boolean))].sort();
+    const years    = [...new Set(vehicles.map(d => d._year).filter(Boolean))];
+
+    buildCheckboxes('brand-list', brands,   'brand',  v => vehicles.filter(d => d._brand === v).length,  e => { const {value} = e.target.dataset; e.target.checked ? active.brands.add(value)   : active.brands.delete(value);   applyFilters(); });
+    buildCheckboxes('type-list',  types,    'type',   v => vehicles.filter(d => d.type   === v).length,  e => { const {value} = e.target.dataset; e.target.checked ? active.types.add(value)    : active.types.delete(value);    applyFilters(); });
+    buildCheckboxes('loc-list',   parishes, 'loc',    v => vehicles.filter(d => d.parish === v).length,  e => { const {value} = e.target.dataset; e.target.checked ? active.parishes.add(value) : active.parishes.delete(value); applyFilters(); });
+    buildYearSelects(years);
+    buildTable(vehicles);
+
+    document.getElementById('search').addEventListener('input', applyFilters);
+    document.getElementById('price-min').addEventListener('input', applyFilters);
+    document.getElementById('price-max').addEventListener('input', applyFilters);
+    document.getElementById('year-min').addEventListener('change', applyFilters);
+    document.getElementById('year-max').addEventListener('change', applyFilters);
+    document.getElementById('clear-brand').addEventListener('click', () => clearGroup('brand', active.brands));
+    document.getElementById('clear-type').addEventListener('click',  () => clearGroup('type',  active.types));
+    document.getElementById('clear-loc').addEventListener('click',   () => clearGroup('loc',   active.parishes));
+    document.getElementById('clear-year').addEventListener('click',  () => { active.yearMin = null; active.yearMax = null; document.getElementById('year-min').value = ''; document.getElementById('year-max').value = ''; applyFilters(); });
+    document.getElementById('clear-price').addEventListener('click', () => { document.getElementById('price-min').value = ''; document.getElementById('price-max').value = ''; applyFilters(); });
+    document.getElementById('clear-all').addEventListener('click', clearAll);
+
+    document.getElementById('loading').style.display = 'none';
+    applyFilters();
+  } catch (e) {
+    document.getElementById('loading').innerHTML =
+      '<p style="color:var(--accent)"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M8 2L14.5 13.5H1.5Z"/><line x1="8" y1="7" x2="8" y2="10"/><circle cx="8" cy="12.5" r="0.5" fill="currentColor"/></svg> Failed to load: ' + esc(e.message) + '</p>' +
+      '<p style="color:var(--muted);margin-top:8px;font-size:13px">Run an extraction and save it to populate data.</p>';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

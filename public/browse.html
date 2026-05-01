@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browse Classifieds — Gleaner v3</title>
+<script src="theme.js"></script>
+<link rel="stylesheet" href="viewer.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="masthead">
+    <h1>Sunday <em>Classifieds</em></h1>
+    <div class="meta" id="header-meta">Sunday Gleaner &nbsp;·&nbsp; Jobs · Real Estate · Vehicles · Notices</div>
+  </div>
+  <div class="header-right">
+    <div class="count-display"><span id="visibleCount">—</span>listings</div>
+  </div>
+</header>
+
+<nav class="site-nav">
+  <a href="/"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,2 5,9 8,9 7,14 11,7 8,7"/></svg> Extract</a>
+  <a href="browse.html" class="active"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="1" width="10" height="14" rx="1.5"/><line x1="5.5" y1="5" x2="10.5" y2="5"/><line x1="5.5" y1="8" x2="10.5" y2="8"/><line x1="5.5" y1="11" x2="8.5" y2="11"/></svg> Browse</a>
+  <a href="charts.html"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="8" width="3" height="6" rx="0.5"/><rect x="6.5" y="5" width="3" height="9" rx="0.5"/><rect x="11" y="2" width="3" height="12" rx="0.5"/></svg> Analytics</a>
+  <a href="autos.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17h20v-4l-3-5H5L2 13v4z"/><path d="M6 8.5c1-2.5 2.5-4 4.5-4h3c2 0 3.5 1.5 4.5 4"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M2 13h20"/></svg> Autos</a>
+  <div class="theme-swatches">
+    <button class="tsw" data-theme="light" title="Gleaner Light"></button>
+    <button class="tsw" data-theme="dark"  title="Night Blue"></button>
+    <button class="tsw" data-theme="auto"  title="Auto Gold"></button>
+  </div>
+</nav>
+
+<div class="summary-strip" id="summary-strip">
+  <div class="stat"><span class="num" id="s-jobs">—</span><span class="lbl">Vacancies</span></div>
+  <div class="stat"><span class="num" id="s-rentals">—</span><span class="lbl">Rentals</span></div>
+  <div class="stat"><span class="num" id="s-sales">—</span><span class="lbl">For Sale</span></div>
+  <div class="stat"><span class="num" id="s-vehicles">—</span><span class="lbl">Vehicles</span></div>
+  <div class="stat"><span class="num" id="s-notices">—</span><span class="lbl">Notices</span></div>
+  <div class="stat"><span class="num" id="s-total">—</span><span class="lbl">Total</span></div>
+</div>
+
+<div class="filter-panel">
+  <div class="filter-group">
+    <div class="filter-group-label">Category <button id="clear-cat">Clear</button></div>
+    <div class="checkbox-list" id="cat-list"></div>
+  </div>
+  <div class="filter-group">
+    <div class="filter-group-label">Type <button id="clear-type">Clear</button></div>
+    <div class="checkbox-list" id="type-list"></div>
+  </div>
+  <div class="filter-group">
+    <div class="filter-group-label">Parish <button id="clear-loc">Clear</button></div>
+    <div class="checkbox-list" id="loc-list"></div>
+  </div>
+  <div class="filter-group">
+    <div class="filter-group-label">Repeat Contacts <button id="clear-contacts">Clear</button></div>
+    <div class="checkbox-list" id="contact-list" style="max-height:200px;"></div>
+  </div>
+  <div class="filter-group" style="min-width:160px;flex:0 0 auto;">
+    <div class="filter-group-label">Price (JMD) <button id="clear-price">Clear</button></div>
+    <div class="range-row"><label>Min</label><input type="number" id="price-min" class="price-input" placeholder="e.g. 500000" min="0" step="50000"></div>
+    <div class="range-row"><label>Max</label><input type="number" id="price-max" class="price-input" placeholder="e.g. 5000000" min="0" step="50000"></div>
+    <div class="range-row" style="margin-top:8px;">
+      <button id="neg-only-btn" class="neg-only-btn" title="Show negotiable listings only">NEG only</button>
+    </div>
+  </div>
+</div>
+
+<div class="search-row">
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="search" placeholder="Search title, notes, location…">
+  </div>
+  <div class="active-filters" id="active-filters"></div>
+  <div class="price-fmt-wrap" title="Price display format">
+    <span class="price-fmt-label">Price</span>
+    <div class="price-fmt-btns">
+      <button class="pfmt active" data-fmt="comma" title="Full number: 1,500,000">1,000</button>
+      <button class="pfmt" data-fmt="k" title="Shorthand: 1.5M / 45k">k/M</button>
+    </div>
+  </div>
+  <div class="view-toggle">
+    <button class="view-btn active" id="btn-list" title="List view">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    </button>
+    <button class="view-btn" id="btn-gallery" title="Gallery view">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </button>
+  </div>
+  <button class="btn-clear-all" id="clear-all">Clear all</button>
+</div>
+
+<div class="table-wrap">
+  <div id="loading" class="loading">
+    <div class="loading-spinner"></div>
+    <span id="loading-text">Loading classifieds data…</span>
+    <div id="cat-selector" class="cat-selector" style="display:none">
+      <div class="cat-sel-title">Select categories to load</div>
+      <div id="cat-sel-checks" class="cat-sel-checks"></div>
+      <button id="cat-sel-load" class="cat-sel-load-btn">Load Selected</button>
+    </div>
+  </div>
+  <div id="no-results" class="no-results"><big>NO RESULTS</big>Try adjusting your filters.</div>
+  <div id="listings-container"></div>
+  <div id="gallery-container"></div>
+</div>
+
+<footer class="site-footer">
+  <span id="footer-edition">Gleaner Classifieds</span>
+  <span>Prices in Jamaican Dollars unless otherwise noted</span>
+</footer>
+
+<script src="classifieds-lib.js"></script>
+<script>
+
+let engine = null;
+let viewMode = 'list';
+const ALL_CATS = ['Vacancies', 'Real Estate', 'Vehicles', 'Notices'];
+
+/* Show category selector if per-category meta is available; returns selected cats */
+async function selectCategories() {
+  const meta = await fetchMeta();
+  if (!meta || !Array.isArray(meta.available) || meta.available.length === 0) return null;
+
+  return new Promise(resolve => {
+    const sel   = document.getElementById('cat-selector');
+    const txt   = document.getElementById('loading-text');
+    const chks  = document.getElementById('cat-sel-checks');
+    const btn   = document.getElementById('cat-sel-load');
+    txt.style.display = 'none';
+    sel.style.display = '';
+
+    chks.innerHTML = '';
+    meta.available.forEach(cat => {
+      const lbl = document.createElement('label');
+      lbl.className = 'cat-sel-item';
+      lbl.innerHTML =
+        '<input type="checkbox" value="' + esc(cat) + '" checked>' +
+        '<span>' + esc(cat) + '</span>';
+      chks.appendChild(lbl);
+    });
+
+    btn.onclick = () => {
+      const selected = [...chks.querySelectorAll('input:checked')].map(i => i.value);
+      sel.style.display = 'none';
+      txt.style.display = '';
+      txt.textContent = 'Loading selected categories…';
+      resolve(selected.length ? selected : null);
+    };
+  });
+}
+
+async function init() {
+  try {
+    const selectedCats = await selectCategories();
+    const json = await fetchClassifieds(selectedCats ? { cats: selectedCats } : undefined);
+    repairPrices(json.records);
+    const data = json.records;
+    const meta = json.meta || {};
+    engine = new FilterEngine(data);
+
+    if (meta.edition) {
+      document.getElementById('header-meta').innerHTML =
+        'Sunday Gleaner &nbsp;·&nbsp; <b>' + esc(meta.edition) + '</b>' +
+        (meta.pages ? ' &nbsp;·&nbsp; ' + esc(meta.pages) : '');
+      document.getElementById('footer-edition').textContent =
+        'Source: Sunday Gleaner — ' + meta.edition + (meta.pages ? ' · Pages ' + meta.pages : '');
+    }
+
+    document.getElementById('s-jobs').textContent     = data.filter(d => d.cat === 'Vacancies').length;
+    document.getElementById('s-rentals').textContent  = data.filter(d => d.type === 'Rental').length;
+    document.getElementById('s-sales').textContent    = data.filter(d => d.type === 'Sale').length;
+    document.getElementById('s-vehicles').textContent = data.filter(d => d.cat === 'Vehicles').length;
+    document.getElementById('s-notices').textContent  = data.filter(d => d.cat === 'Notices').length;
+    document.getElementById('s-total').textContent    = data.length;
+
+    buildCheckboxes('cat-list',  engine.get('cat'),    'cat',  v => engine.countBy('cat',    v), onCheckbox);
+    buildCheckboxes('type-list', engine.get('type'),   'type', v => engine.countBy('type',   v), onCheckbox);
+    buildCheckboxes('loc-list',  engine.get('parish'), 'loc',  v => engine.countBy('parish', v), onCheckbox);
+    buildContactCheckboxes('contact-list', engine.contactGroups, onContactCheckbox);
+
+    buildGroupedTable('listings-container', data, 'cat',
+      item =>
+        '<td class="col-id">#' + item.id + '</td>' +
+        '<td class="col-title">' + esc(item.title) + '</td>' +
+        '<td class="col-type"><span class="badge badge-' + esc(item.type).replace(/\s+/g,'-') + '">' + esc(item.type) + '</span></td>' +
+        '<td class="col-loc">' + esc(item.parish) + '</td>' +
+        '<td class="col-price" data-price="' + (item.price_jmd != null ? item.price_jmd : '') + '" data-price-neg="' + (item.price_neg ? '1' : '0') + '">' + (item.price_neg ? '<span class="neg-badge">neg</span>' : '') + '<span class="price-num">' + esc(formatPrice(item.price_jmd)) + '</span></td>' +
+        '<td class="col-notes"><div class="notes-clamp">' + esc(item.notes) + '</div>' +
+          (Array.isArray(item.items) && item.items.length > 0 ? '<span class="items-badge">▦ ' + item.items.length + ' units</span>' : '') +
+        '</td>' +
+        '<td class="col-phone">'  + formatPhones(item.contact) + '</td>' +
+        '<td class="col-email">'  + formatEmails(item.contact) + '</td>',
+      ['#', 'Title / Role', 'Type', 'Parish', 'Price', 'Notes', 'Phone', 'Email'],
+      engine
+    );
+
+    buildGallery('gallery-container', data);
+    document.getElementById('gallery-container').style.display = 'none';
+    attachSectionFilters('listings-container', engine, applyFilters);
+    attachSectionFilters('gallery-container',  engine, applyFilters);
+
+    document.getElementById('search').addEventListener('input', applyFilters);
+    document.getElementById('price-min').addEventListener('input', applyFilters);
+    document.getElementById('price-max').addEventListener('input', applyFilters);
+    document.getElementById('clear-cat').addEventListener('click', () => clearGroup('cat'));
+    document.getElementById('clear-type').addEventListener('click', () => clearGroup('type'));
+    document.getElementById('clear-loc').addEventListener('click', () => clearGroup('loc'));
+    document.getElementById('clear-contacts').addEventListener('click', () => clearGroup('contacts'));
+    document.getElementById('clear-price').addEventListener('click', clearPrice);
+    document.getElementById('neg-only-btn').addEventListener('click', () => {
+      engine.active.negOnly = !engine.active.negOnly;
+      applyFilters();
+    });
+    document.getElementById('clear-all').addEventListener('click', clearAll);
+    document.getElementById('btn-list').addEventListener('click', () => setView('list'));
+    document.getElementById('btn-gallery').addEventListener('click', () => setView('gallery'));
+
+    document.querySelectorAll('.pfmt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pfmt').forEach(b => b.classList.toggle('active', b === btn));
+        setPriceFormat(btn.dataset.fmt);
+      });
+    });
+
+    let _selectedRow = null;
+
+    function flashAndOpen(row) {
+      const btn = row.querySelector('.expand-btn');
+      if (btn) {
+        btn.classList.add('expand-btn-flash');
+        setTimeout(() => btn.classList.remove('expand-btn-flash'), 350);
+      }
+      setTimeout(() => openModal(parseInt(row.dataset.id), engine.filter()), 180);
+    }
+
+    document.getElementById('listings-container').addEventListener('click', e => {
+      if (e.target.closest('.expand-btn') || e.target.closest('a') || e.target.closest('button')) return;
+      const row = e.target.closest('tr[data-id]');
+      if (!row) return;
+      if (_selectedRow === row) {
+        flashAndOpen(row);
+      } else {
+        if (_selectedRow) _selectedRow.classList.remove('row-selected');
+        _selectedRow = row;
+        row.classList.add('row-selected');
+      }
+    });
+
+    document.getElementById('listings-container').addEventListener('click', e => {
+      const btn = e.target.closest('.expand-btn');
+      if (!btn) return;
+      const row = btn.closest('tr[data-id]');
+      if (!row) return;
+      openModal(parseInt(row.dataset.id), engine.filter());
+    });
+
+    document.getElementById('gallery-container').addEventListener('click', e => {
+      const btn = e.target.closest('.expand-btn');
+      if (!btn) return;
+      const el = btn.closest('[data-id]');
+      if (!el) return;
+      openModal(parseInt(el.dataset.id), engine.filter());
+    });
+
+    document.getElementById('loading').style.display = 'none';
+    applyFilters();
+  } catch (e) {
+    document.getElementById('loading').innerHTML =
+      '<p style="color:#e63946"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M8 2L14.5 13.5H1.5Z"/><line x1="8" y1="7" x2="8" y2="10"/><circle cx="8" cy="12.5" r="0.5" fill="currentColor"/></svg> Failed to load: ' + esc(e.message) + '</p>' +
+      '<p style="color:#6b7280;margin-top:8px;font-size:13px">Run an extraction and save it to populate data.</p>';
+  }
+}
+
+function onCheckbox(e) {
+  const { group, value } = e.target.dataset;
+  const map = { cat: engine.active.cats, type: engine.active.types, loc: engine.active.locs };
+  e.target.checked ? map[group].add(value) : map[group].delete(value);
+  applyFilters();
+}
+
+function onContactCheckbox(e) {
+  const { value } = e.target.dataset;
+  e.target.checked ? engine.active.contacts.add(value) : engine.active.contacts.delete(value);
+  applyFilters();
+}
+
+function applyFilters() {
+  if (typeof _selectedRow !== 'undefined' && _selectedRow) {
+    _selectedRow.classList.remove('row-selected');
+    _selectedRow = null;
+  }
+  engine.active.search   = document.getElementById('search').value.toLowerCase().trim();
+  const pMin = document.getElementById('price-min').value;
+  const pMax = document.getElementById('price-max').value;
+  engine.active.priceMin = pMin !== '' ? parseFloat(pMin) : null;
+  engine.active.priceMax = pMax !== '' ? parseFloat(pMax) : null;
+  const negBtn = document.getElementById('neg-only-btn');
+  if (negBtn) negBtn.classList.toggle('active', engine.active.negOnly);
+
+  if (viewMode === 'list') {
+    applyVisibility(engine, 'listings-container', 'visibleCount');
+  } else {
+    applyGalleryFilter(engine, 'gallery-container', 'visibleCount');
+  }
+
+  refreshCheckboxGroup('cat-list',     engine.availableFor('cat',  'cat'),    engine.active.cats);
+  refreshCheckboxGroup('type-list',    engine.availableFor('type', 'type'),   engine.active.types);
+  refreshCheckboxGroup('loc-list',     engine.availableFor('loc',  'parish'), engine.active.locs);
+  refreshCheckboxGroup('contact-list', engine.availableContacts(),            engine.active.contacts);
+
+  renderPills('active-filters', engine.active, (field, value) => {
+    if (field === 'cat')      { engine.active.cats.delete(value);     uncheckCb('cat',      value); }
+    if (field === 'type')     { engine.active.types.delete(value);    uncheckCb('type',     value); }
+    if (field === 'loc')      { engine.active.locs.delete(value);     uncheckCb('loc',      value); }
+    if (field === 'contacts') { engine.active.contacts.delete(value); uncheckCb('contacts', value); }
+    if (field === 'search')   { engine.active.search = ''; document.getElementById('search').value = ''; }
+    if (field === 'negOnly')  { engine.active.negOnly = false; }
+    applyFilters();
+  });
+}
+
+function setView(mode) {
+  viewMode = mode;
+  document.getElementById('btn-list').classList.toggle('active', mode === 'list');
+  document.getElementById('btn-gallery').classList.toggle('active', mode === 'gallery');
+  document.getElementById('listings-container').style.display = mode === 'list'    ? '' : 'none';
+  document.getElementById('gallery-container').style.display  = mode === 'gallery' ? '' : 'none';
+  applyFilters();
+}
+
+function uncheckCb(group, value) {
+  const cb = document.querySelector('[data-group="' + group + '"][data-value="' + value + '"]');
+  if (cb) cb.checked = false;
+}
+
+function clearGroup(group) {
+  const map = { cat: engine.active.cats, type: engine.active.types, loc: engine.active.locs, contacts: engine.active.contacts };
+  map[group].clear();
+  document.querySelectorAll('[data-group="' + group + '"]').forEach(c => c.checked = false);
+  applyFilters();
+}
+
+function clearPrice() {
+  document.getElementById('price-min').value = '';
+  document.getElementById('price-max').value = '';
+  engine.active.negOnly = false;
+  applyFilters();
+}
+
+function clearAll() {
+  engine.active.cats.clear(); engine.active.types.clear();
+  engine.active.locs.clear(); engine.active.contacts.clear();
+  engine.active.search = ''; engine.active.negOnly = false;
+  Object.values(engine.active.sectionFilters).forEach(sf => { sf.types.clear(); sf.parishes.clear(); });
+  document.querySelectorAll('.sf-btn').forEach(b => b.classList.remove('sf-btn-active'));
+  document.querySelectorAll('.sf-count').forEach(s => s.remove());
+  document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+  document.getElementById('search').value = '';
+  clearPrice();
+}
+
+init();
+</script>
+</body>
+</html>

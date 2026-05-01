@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — Gleaner v3</title>
+<script src="theme.js"></script>
+<link rel="stylesheet" href="viewer.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  .chart-canvas-wrap { position: relative; width: 100%; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="masthead">
+    <h1>Classifieds <em>Analytics</em></h1>
+    <div class="meta" id="header-meta">Sunday Gleaner &nbsp;·&nbsp; Data Visualisations</div>
+  </div>
+  <div class="header-right">
+    <div class="count-display"><span id="visibleCount">—</span>records</div>
+  </div>
+</header>
+
+<nav class="site-nav">
+  <a href="/"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,2 5,9 8,9 7,14 11,7 8,7"/></svg> Extract</a>
+  <a href="browse.html"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="1" width="10" height="14" rx="1.5"/><line x1="5.5" y1="5" x2="10.5" y2="5"/><line x1="5.5" y1="8" x2="10.5" y2="8"/><line x1="5.5" y1="11" x2="8.5" y2="11"/></svg> Browse</a>
+  <a href="charts.html" class="active"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="8" width="3" height="6" rx="0.5"/><rect x="6.5" y="5" width="3" height="9" rx="0.5"/><rect x="11" y="2" width="3" height="12" rx="0.5"/></svg> Analytics</a>
+  <a href="autos.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17h20v-4l-3-5H5L2 13v4z"/><path d="M6 8.5c1-2.5 2.5-4 4.5-4h3c2 0 3.5 1.5 4.5 4"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M2 13h20"/></svg> Autos</a>
+  <div class="theme-swatches">
+    <button class="tsw" data-theme="light" title="Gleaner Light"></button>
+    <button class="tsw" data-theme="dark"  title="Night Blue"></button>
+    <button class="tsw" data-theme="auto"  title="Auto Gold"></button>
+  </div>
+</nav>
+
+<div id="loading" class="loading" style="padding:60px 20px">
+  <div class="loading-spinner"></div>
+  Loading analytics data…
+</div>
+
+<div id="content" style="display:none">
+  <div class="insights-row" id="insights-row"></div>
+  <div class="charts-grid">
+    <div class="chart-card wide">
+      <div class="chart-title">Listings by Category &amp; Type</div>
+      <div class="chart-subtitle">Breakdown across section and listing type</div>
+      <div class="chart-canvas-wrap" style="height:300px"><canvas id="chart-cat-type"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Jobs by Role Category</div>
+      <div class="chart-subtitle">Vacancies — role groupings</div>
+      <div class="chart-canvas-wrap" style="height:320px"><canvas id="chart-jobs"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Real Estate Type Split</div>
+      <div class="chart-subtitle">Rental vs Sale vs Land vs Commercial</div>
+      <div class="chart-canvas-wrap" style="height:320px"><canvas id="chart-re-types"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Listings by Parish</div>
+      <div class="chart-subtitle">Geographic distribution across Jamaica</div>
+      <div class="chart-canvas-wrap" style="height:400px"><canvas id="chart-parish"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Rental Price Range Distribution</div>
+      <div class="chart-subtitle">Monthly rental prices (JMD) — listings with stated price</div>
+      <div class="chart-canvas-wrap" style="height:300px"><canvas id="chart-rental-price"></canvas></div>
+    </div>
+    <div class="chart-card wide">
+      <div class="chart-title">Price Stated vs Undisclosed</div>
+      <div class="chart-subtitle">Pricing transparency by category</div>
+      <div class="chart-canvas-wrap" style="height:200px"><canvas id="chart-price-transparency"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Real Estate — St. Catherine vs Kingston</div>
+      <div class="chart-subtitle">Head-to-head: the two dominant parishes</div>
+      <div class="chart-canvas-wrap" style="height:300px"><canvas id="chart-kgn-vs-stcath"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Notices Breakdown</div>
+      <div class="chart-subtitle">Legal vs General notices</div>
+      <div class="chart-canvas-wrap" style="height:300px"><canvas id="chart-notices"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <span id="footer-edition">Gleaner Classifieds</span>
+  <span>Charts powered by Chart.js 4.4</span>
+</footer>
+
+<script src="classifieds-lib.js"></script>
+<script>
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color = '#6b7280';
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+Chart.defaults.plugins.legend.labels.padding  = 16;
+
+const RE_PALETTE = { Rental: '#2d6dd4', Sale: '#166534', Commercial: '#854d0e', Land: '#6b21a8' };
+
+async function init() {
+  try {
+    const json = await fetchClassifieds();
+    const data = json.records;
+    const meta = json.meta || {};
+
+    if (meta.edition) {
+      document.getElementById('header-meta').innerHTML =
+        'Sunday Gleaner &nbsp;·&nbsp; <b>' + esc(meta.edition) + '</b>' +
+        (meta.pages ? ' &nbsp;·&nbsp; Pages ' + esc(meta.pages) : '') +
+        ' &nbsp;·&nbsp; Data Visualisations';
+      document.getElementById('footer-edition').textContent =
+        'Source: Sunday Gleaner — ' + meta.edition;
+    }
+
+    document.getElementById('visibleCount').textContent = data.length;
+    document.getElementById('loading').style.display  = 'none';
+    document.getElementById('content').style.display  = 'block';
+    buildInsights(data);
+    buildCharts(data);
+  } catch(e) {
+    document.getElementById('loading').innerHTML =
+      '<p style="color:#e63946"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M8 2L14.5 13.5H1.5Z"/><line x1="8" y1="7" x2="8" y2="10"/><circle cx="8" cy="12.5" r="0.5" fill="currentColor"/></svg> Failed to load: ' + esc(e.message) + '</p>' +
+      '<p style="color:#6b7280;margin-top:8px;font-size:13px">Run an extraction and save it to populate data.</p>';
+  }
+}
+
+function buildInsights(data) {
+  const jobs      = data.filter(d => d.cat === 'Vacancies');
+  const re        = data.filter(d => d.cat === 'Real Estate');
+  const rentals   = re.filter(d => d.type === 'Rental');
+  const priced    = rentals.filter(d => d.price_jmd);
+  const avgRental = priced.length ? Math.round(priced.reduce((s,d)=>s+d.price_jmd,0)/priced.length) : 0;
+  const parishEntries = Object.entries(countByField(data,'parish')).sort((a,b)=>b[1]-a[1]);
+  const topParish = parishEntries[0] || ['—', 0];
+  const driverJobs = jobs.filter(d => /driver|ppv|taxi|truck|delivery/i.test(d.title));
+  const noPrice    = data.filter(d => d.price_jmd === null).length;
+
+  const cards = [
+    { val: jobs.length,    lbl:'Total Vacancies',      sub:'Jobs & employment',           cls:'' },
+    { val: re.length,      lbl:'Real Estate',           sub:'Rentals, sales, land, commercial', cls:'green' },
+    { val: '$' + avgRental.toLocaleString(), lbl:'Avg Rental (JMD/mo)', sub:'Based on ' + priced.length + ' stated prices', cls:'gold' },
+    { val: topParish[0],   lbl:'Top Parish',            sub:topParish[1] + ' listings',    cls:'purple' },
+    { val: driverJobs.length, lbl:'Driver Job Ads',     sub:'Most common role type',        cls:'red' },
+    { val: Math.round(noPrice/data.length*100) + '%', lbl:'Price Undisclosed', sub:noPrice + ' of ' + data.length + ' ads', cls:'' },
+  ];
+  const row = document.getElementById('insights-row');
+  cards.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'insight-card ' + c.cls;
+    div.innerHTML = '<div class="i-val">' + c.val + '</div><div class="i-lbl">' + c.lbl + '</div><div class="i-sub">' + c.sub + '</div>';
+    row.appendChild(div);
+  });
+}
+
+function buildCharts(data) {
+  // 1. Stacked bar — Category + Type
+  const cats  = [...new Set(data.map(d=>d.cat))].sort();
+  const types = [...new Set(data.map(d=>d.type))].sort();
+  new Chart(document.getElementById('chart-cat-type'), {
+    type: 'bar',
+    data: {
+      labels: cats,
+      datasets: types.map((type, i) => ({
+        label: type,
+        data: cats.map(cat => data.filter(d=>d.cat===cat && d.type===type).length),
+        backgroundColor: PALETTE.mixed[i % PALETTE.mixed.length],
+        borderRadius: 3,
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right' } },
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, beginAtZero: true, grid: { color: '#eef2f9' } }
+      }
+    }
+  });
+
+  // 2. Doughnut — Job roles
+  const jobs = data.filter(d => d.cat === 'Vacancies');
+  const roleMap = {
+    'Driver / Transport': d => /driver|ppv|taxi|trucking|delivery|hackney|route/i.test(d.title),
+    'Domestic / Care':    d => /helper|housekeeper|nanny|caregiver|nurse|infant|baby/i.test(d.title),
+    'Trade / Skilled':    d => /chef|baker|tailor|spray|forklift|maintenance|haccp|engineer|biomedical/i.test(d.title),
+    'Sales / Admin':      d => /sales|clerk|cashier|receptionist|accounting|supervisor|customer|representative/i.test(d.title),
+    'Security':           d => /security|guard/i.test(d.title),
+    'Other':              () => true,
+  };
+  const roleCounts = {};
+  jobs.forEach(j => {
+    for (const [role, test] of Object.entries(roleMap)) {
+      if (test(j)) { roleCounts[role] = (roleCounts[role]||0)+1; break; }
+    }
+  });
+  if (Object.keys(roleCounts).length) {
+    new Chart(document.getElementById('chart-jobs'), {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(roleCounts),
+        datasets: [{ data: Object.values(roleCounts), backgroundColor: PALETTE.mixed, borderWidth: 2, borderColor: '#fff', hoverOffset: 8 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+    });
+  }
+
+  // 3. Pie — Real Estate types
+  const re = data.filter(d => d.cat === 'Real Estate');
+  if (re.length) {
+    const reTypes = countByField(re, 'type');
+    new Chart(document.getElementById('chart-re-types'), {
+      type: 'pie',
+      data: {
+        labels: Object.keys(reTypes),
+        datasets: [{
+          data: Object.values(reTypes),
+          backgroundColor: Object.keys(reTypes).map(t => RE_PALETTE[t] || '#6b7280'),
+          borderWidth: 2, borderColor: '#fff', hoverOffset: 8
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+    });
+  }
+
+  // 4. Horizontal bar — by Parish
+  const parishCounts = countByField(data, 'parish');
+  const sortedParish = Object.entries(parishCounts).sort((a,b)=>b[1]-a[1]);
+  new Chart(document.getElementById('chart-parish'), {
+    type: 'bar',
+    data: {
+      labels: sortedParish.map(p=>p[0]),
+      datasets: [{
+        label: 'Listings',
+        data: sortedParish.map(p=>p[1]),
+        backgroundColor: sortedParish.map((_,i) => PALETTE.blue[Math.min(i, PALETTE.blue.length-1)]),
+        borderRadius: 3,
+      }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, grid: { color: '#eef2f9' } }, y: { grid: { display: false } } }
+    }
+  });
+
+  // 5. Bar — Rental price distribution
+  const rentals = data.filter(d => d.type === 'Rental' && d.price_jmd);
+  const priceBuckets = {
+    'Under $40k':  rentals.filter(d=>d.price_jmd < 40000).length,
+    '$40k–$60k':   rentals.filter(d=>d.price_jmd>=40000  && d.price_jmd<60000).length,
+    '$60k–$80k':   rentals.filter(d=>d.price_jmd>=60000  && d.price_jmd<80000).length,
+    '$80k–$100k':  rentals.filter(d=>d.price_jmd>=80000  && d.price_jmd<100000).length,
+    '$100k–$150k': rentals.filter(d=>d.price_jmd>=100000 && d.price_jmd<150000).length,
+    'Over $150k':  rentals.filter(d=>d.price_jmd>=150000).length,
+  };
+  new Chart(document.getElementById('chart-rental-price'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(priceBuckets),
+      datasets: [{ label: 'Rentals', data: Object.values(priceBuckets), backgroundColor: PALETTE.blue[1], borderRadius: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#eef2f9' } } }
+    }
+  });
+
+  // 6. Stacked horizontal — price transparency
+  const cats2 = [...new Set(data.map(d=>d.cat))].sort();
+  new Chart(document.getElementById('chart-price-transparency'), {
+    type: 'bar',
+    data: {
+      labels: cats2,
+      datasets: [
+        { label: 'Price Stated',      data: cats2.map(c => data.filter(d=>d.cat===c && d.price_jmd !== null).length), backgroundColor: '#2d6dd4', borderRadius: 3 },
+        { label: 'Price Undisclosed', data: cats2.map(c => data.filter(d=>d.cat===c && d.price_jmd === null).length), backgroundColor: '#cbd5e1', borderRadius: 3 },
+      ]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { x: { stacked: true, beginAtZero: true, grid: { color: '#eef2f9' } }, y: { stacked: true, grid: { display: false } } }
+    }
+  });
+
+  // 7. Grouped bar — Kingston vs St. Catherine
+  const reTypes2 = ['Rental','Sale','Land','Commercial'];
+  new Chart(document.getElementById('chart-kgn-vs-stcath'), {
+    type: 'bar',
+    data: {
+      labels: reTypes2,
+      datasets: [
+        { label: 'Kingston',      data: reTypes2.map(t => data.filter(d=>d.parish==='Kingston'      && d.type===t).length), backgroundColor: '#1a4fa0', borderRadius: 4 },
+        { label: 'St. Catherine', data: reTypes2.map(t => data.filter(d=>d.parish==='St. Catherine' && d.type===t).length), backgroundColor: '#6aaaf5', borderRadius: 4 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#eef2f9' } } }
+    }
+  });
+
+  // 8. Doughnut — Notices split
+  const notices = data.filter(d => d.cat === 'Notices');
+  if (notices.length) {
+    const noticeTypes = countByField(notices, 'type');
+    new Chart(document.getElementById('chart-notices'), {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(noticeTypes),
+        datasets: [{ data: Object.values(noticeTypes), backgroundColor: ['#475569','#15803d','#854d0e'], borderWidth: 2, borderColor: '#fff', hoverOffset: 8 }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+    });
+  }
+}
+
+init();
+</script>
+</body>
+</html>

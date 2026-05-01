@@ -1,0 +1,6 @@
+node_modules/
+
+# Generated extraction data — commit gleaner_sample.json but not live data
+public/data/classifieds.json
+public/data/classifieds_*.json
+public/data/meta.json

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gleaner Extractor v3</title>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Site nav -->
+  <nav class="site-topnav">
+    <a href="/" class="active"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,2 5,9 8,9 7,14 11,7 8,7"/></svg> Extract</a>
+    <a href="browse.html"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="1" width="10" height="14" rx="1.5"/><line x1="5.5" y1="5" x2="10.5" y2="5"/><line x1="5.5" y1="8" x2="10.5" y2="8"/><line x1="5.5" y1="11" x2="8.5" y2="11"/></svg> Browse</a>
+    <a href="charts.html"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="8" width="3" height="6" rx="0.5"/><rect x="6.5" y="5" width="3" height="9" rx="0.5"/><rect x="11" y="2" width="3" height="12" rx="0.5"/></svg> Analytics</a>
+    <a href="autos.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17h20v-4l-3-5H5L2 13v4z"/><path d="M6 8.5c1-2.5 2.5-4 4.5-4h3c2 0 3.5 1.5 4.5 4"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M2 13h20"/></svg> Autos</a>
+    <div class="theme-swatches">
+      <button class="tsw" data-theme="light" title="Gleaner Light"></button>
+      <button class="tsw" data-theme="dark"  title="Night Blue"></button>
+      <button class="tsw" data-theme="auto"  title="Auto Gold"></button>
+    </div>
+  </nav>
+
+  <div class="app">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+          <line x1="9" y1="9" x2="9" y2="21"/>
+        </svg>
+        <span class="logo-text">Gleaner Extractor <span class="logo-ver">v3</span></span>
+      </div>
+      <div class="header-controls">
+        <input id="api-key" type="password" placeholder="sk-ant-api…" autocomplete="off" spellcheck="false" />
+        <select id="model-select">
+          <option value="claude-opus-4-7">Opus 4.7</option>
+          <option value="claude-opus-4-6">Opus 4.6</option>
+          <option value="claude-sonnet-4-6">Sonnet 4.6</option>
+        </select>
+        <input type="hidden" id="run-template" value="heavy">
+        <button id="run-btn" class="btn btn-primary" disabled>
+          <svg viewBox="0 0 16 16" fill="currentColor"><polygon points="3,2 13,8 3,14"/></svg>
+          Run Extraction
+        </button>
+        <button id="stop-btn" class="btn btn-stop" style="display:none">
+          <svg viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10"/></svg>
+          Stop
+        </button>
+        <button id="reset-btn" class="btn btn-ghost">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8a6 6 0 1 1 1.5 4"/><polyline points="2,12 2,8 6,8"/></svg>
+          Reset
+        </button>
+      </div>
+    </header>
+
+    <!-- Edition metadata bar -->
+    <div class="meta-bar">
+      <label>Source <input id="meta-source" type="text" value="Sunday Gleaner" /></label>
+      <label>Edition <input id="meta-edition" type="text" placeholder="April 12, 2026" /></label>
+      <label>Pages <input id="meta-pages" type="text" placeholder="e.g. B1–B8" /></label>
+    </div>
+
+    <!-- Workflow tile selector -->
+    <div class="workflow-tiles" id="workflow-tiles">
+      <button class="wf-tile" data-mode="quick">
+        <div class="wf-tile-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><polyline points="4,10 8,4 11,10 14,6 17,10"/><line x1="4" y1="15" x2="17" y2="15"/></svg>
+        </div>
+        <div class="wf-tile-name">Quick Scan</div>
+        <div class="wf-tile-desc">Single extraction pass — one API call per page, no resweep</div>
+        <div class="wf-tile-passes">1 pass</div>
+      </button>
+      <button class="wf-tile" data-mode="adversarial">
+        <div class="wf-tile-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><circle cx="10" cy="10" r="7"/><line x1="10" y1="6" x2="10" y2="10"/><circle cx="10" cy="13.5" r="0.75" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div class="wf-tile-name">Quick Adversarial</div>
+        <div class="wf-tile-desc">Extract then audit each page for edge-case ads missed by Pass 1</div>
+        <div class="wf-tile-passes">2 passes</div>
+      </button>
+      <button class="wf-tile active" data-mode="heavy">
+        <div class="wf-tile-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><circle cx="10" cy="10" r="3"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42"/></svg>
+        </div>
+        <div class="wf-tile-name">Deep Scan</div>
+        <div class="wf-tile-desc">Extract then hunt missing contacts page by page</div>
+        <div class="wf-tile-passes">2 passes</div>
+      </button>
+    </div>
+
+    <!-- PDF upload -->
+    <div id="drop-zone" class="drop-zone">
+      <div class="drop-icon">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.4">
+          <rect x="8" y="4" width="28" height="36" rx="3"/>
+          <line x1="14" y1="14" x2="30" y2="14"/>
+          <line x1="14" y1="20" x2="30" y2="20"/>
+          <line x1="14" y1="26" x2="24" y2="26"/>
+          <polyline points="30,32 36,32 36,44 24,44 24,32 30,32"/>
+          <polyline points="28,35 31,32 34,35"/>
+        </svg>
+      </div>
+      <div class="drop-label">Drop a PDF here or <label for="file-input" class="drop-link">browse</label></div>
+      <div class="drop-sub">Sunday Gleaner classified pages &nbsp;·&nbsp; or <label for="load-json-drop" class="drop-link">load a saved JSON</label></div>
+      <input id="file-input" type="file" accept="application/pdf" style="display:none" />
+      <input id="load-json-drop" type="file" accept=".json,application/json" style="display:none" />
+    </div>
+
+    <!-- File info (shown after load) -->
+    <div id="file-info" class="file-info">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="4" y="2" width="12" height="16" rx="2"/>
+        <line x1="7" y1="7" x2="13" y2="7"/>
+        <line x1="7" y1="10" x2="13" y2="10"/>
+        <line x1="7" y1="13" x2="10" y2="13"/>
+      </svg>
+      <span id="file-name"></span>
+      <span id="file-size" class="file-size"></span>
+      <span id="file-pages-count" class="file-pages-count"></span>
+      <button id="remove-file" class="btn-icon-sm" title="Remove file">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="4" x2="12" y2="12"/><line x1="12" y1="4" x2="4" y2="12"/></svg>
+      </button>
+    </div>
+
+    <!-- Page Selection Panel -->
+    <div id="page-panel" class="page-panel" style="display:none">
+      <div class="page-panel-header">
+        <span class="page-panel-title">Page Selection</span>
+        <div class="page-panel-actions">
+          <input id="page-range-input" type="text" placeholder="e.g. 1-3, 5, 7-10" title="Type page ranges" />
+          <button id="apply-range-btn" class="btn btn-ghost btn-sm">Apply</button>
+          <button id="select-all-btn" class="btn btn-ghost btn-sm">All</button>
+          <button id="select-none-btn" class="btn btn-ghost btn-sm">None</button>
+          <span id="page-selection-count" class="page-sel-count"></span>
+        </div>
+      </div>
+      <div id="page-gallery" class="page-gallery"></div>
+    </div>
+
+    <!-- Status bar -->
+    <div id="status-bar" class="status-bar">Ready — upload a PDF and click Run Extraction.</div>
+
+    <!-- Pass list -->
+    <div id="pass-list" class="pass-list"></div>
+
+    <!-- Stats row -->
+    <div id="stats-row" class="stats-row" style="display:none">
+      <div class="stat-card stat-total-card">
+        <div class="stat-val" id="stat-total">0</div>
+        <div class="stat-label">Total (selected)</div>
+      </div>
+      <button class="stat-card stat-toggle active" data-cat="Vacancies" title="Toggle Vacancies">
+        <div class="stat-val" id="stat-jobs">0</div>
+        <div class="stat-label">Vacancies</div>
+        <div class="stat-toggle-hint">&#x2713;</div>
+      </button>
+      <button class="stat-card stat-toggle active" data-cat="Real Estate" title="Toggle Real Estate">
+        <div class="stat-val" id="stat-re">0</div>
+        <div class="stat-label">Real Estate</div>
+        <div class="stat-toggle-hint">&#x2713;</div>
+      </button>
+      <button class="stat-card stat-toggle active" data-cat="Vehicles" title="Toggle Vehicles">
+        <div class="stat-val" id="stat-vehicles">0</div>
+        <div class="stat-label">Vehicles</div>
+        <div class="stat-toggle-hint">&#x2713;</div>
+      </button>
+      <button class="stat-card stat-toggle active" data-cat="Notices" title="Toggle Notices">
+        <div class="stat-val" id="stat-notices">0</div>
+        <div class="stat-label">Notices</div>
+        <div class="stat-toggle-hint">&#x2713;</div>
+      </button>
+    </div>
+
+    <!-- Output section -->
+    <div id="output-section" class="output-section" style="display:none">
+      <div class="output-header">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="table">Table</button>
+          <button class="tab-btn" data-tab="json">JSON</button>
+        </div>
+        <div class="output-actions">
+          <button id="save-btn" class="btn btn-save btn-sm">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8"/><polyline points="5,7 8,10 11,7"/><rect x="2" y="11" width="12" height="3" rx="1"/></svg>
+            Save to Viewer
+          </button>
+          <button id="download-btn" class="btn btn-ghost btn-sm">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v7"/><polyline points="5,7 8,10 11,7"/><path d="M3 13h10"/></svg>
+            Download JSON
+          </button>
+          <button id="copy-btn" class="btn btn-ghost btn-sm">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1"/><path d="M5 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2"/></svg>
+            Copy
+          </button>
+          <label id="load-json-btn" class="btn btn-ghost btn-sm" title="Load a previously downloaded JSON file">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 11V3"/><polyline points="5,6 8,3 11,6"/><path d="M3 13h10"/></svg>
+            Load JSON
+            <input id="load-json-input" type="file" accept=".json,application/json" style="display:none" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Table tab -->
+      <div id="tab-table" class="tab-pane active">
+        <div class="table-wrap">
+          <table class="preview-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Category</th><th>Type</th><th>Title</th>
+                <th>Parish</th><th>Price</th><th>Notes</th><th>Contact</th>
+              </tr>
+            </thead>
+            <tbody id="preview-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- JSON tab -->
+      <div id="tab-json" class="tab-pane">
+        <div class="json-meta" id="json-lines-label"></div>
+        <pre id="json-preview" class="json-preview"></pre>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="empty-state">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.25">
+        <circle cx="20" cy="20" r="12"/>
+        <line x1="30" y1="30" x2="42" y2="42"/>
+        <line x1="14" y1="20" x2="26" y2="20"/>
+        <line x1="20" y1="14" x2="20" y2="26"/>
+      </svg>
+      <p>No results yet — load a PDF and run extraction</p>
+    </div>
+
+  </div>
+
+  <!-- PDF.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>

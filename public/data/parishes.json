@@ -1,0 +1,153 @@
+{
+  "parishes": [
+    {
+      "canonical": "Kingston",
+      "aliases": [
+        "Kingston", "KINGSTON", "KGN", "K'ton", "Kingston Parish",
+        "Downtown Kingston", "Uptown Kingston", "Central Kingston",
+        "Cross Roads", "Crossroads", "Half Way Tree", "Half-Way-Tree",
+        "New Kingston", "New Kingston KGN", "Constant Spring",
+        "Liguanea", "Manor Park", "Mona", "Papine", "August Town",
+        "Barbican", "Cherry Gardens", "Havendale", "Hope Road",
+        "Maxfield", "Maxfield Park", "Rae Town", "Trench Town",
+        "Whitfield Town", "Kingston 1", "Kingston 2", "Kingston 3",
+        "Kingston 4", "Kingston 5", "Kingston 6", "Kingston 7",
+        "Kingston 8", "Kingston 10", "Kingston 11", "Kingston 12",
+        "Kingston 13", "Kingston 14", "Kingston 15",
+        "KGN 1", "KGN 2", "KGN 5", "KGN 6", "KGN 8", "KGN 10"
+      ]
+    },
+    {
+      "canonical": "St. Andrew",
+      "aliases": [
+        "St. Andrew", "St Andrew", "Saint Andrew", "ST. ANDREW", "ST ANDREW",
+        "STA", "St.Andrew", "St. Andrew Parish",
+        "Half Way Tree", "Half-Way-Tree", "HWT",
+        "Constant Spring", "Stony Hill", "Irish Town", "Red Hills",
+        "Meadowbrook", "Norbrook", "Jacks Hill", "Cherry Gardens",
+        "Havendale", "Smokey Vale", "Lawrence Tavern", "Gordon Town",
+        "Kingston 6", "Kingston 8", "Kingston 10", "Kingston 19",
+        "Kingston 20", "KGN 6", "KGN 8", "KGN 10"
+      ]
+    },
+    {
+      "canonical": "St. Catherine",
+      "aliases": [
+        "St. Catherine", "St Catherine", "Saint Catherine", "ST. CATHERINE", "ST CATHERINE",
+        "STC", "St.Catherine",
+        "Spanish Town", "Spanish Town STC", "Portmore", "Old Harbour",
+        "Old Harbour Bay", "Linstead", "Bog Walk", "Ewarton",
+        "Greater Portmore", "Waterford", "Bridgeport", "Naggo Head",
+        "Gregory Park", "Edgewater", "Lauriston", "Caymanas",
+        "Caymanas Estate", "Braeton", "West Palm Beach", "Twickenham Park",
+        "Point Hill", "Above Rocks", "Red Hills STC"
+      ]
+    },
+    {
+      "canonical": "St. Thomas",
+      "aliases": [
+        "St. Thomas", "St Thomas", "Saint Thomas", "ST. THOMAS", "ST THOMAS",
+        "STT",
+        "Morant Bay", "Bath", "Yallahs", "White Horses",
+        "Churchpen", "Seaforth", "Golden Grove"
+      ]
+    },
+    {
+      "canonical": "Portland",
+      "aliases": [
+        "Portland", "PORTLAND", "PTL",
+        "Port Antonio", "Port Antonio PTL", "Buff Bay",
+        "Annotto Bay", "Long Bay", "Hope Bay", "Moore Town",
+        "Manchioneal", "Fairy Hill"
+      ]
+    },
+    {
+      "canonical": "St. Mary",
+      "aliases": [
+        "St. Mary", "St Mary", "Saint Mary", "ST. MARY", "ST MARY",
+        "STM",
+        "Port Maria", "Oracabessa", "Highgate", "Annotto Bay",
+        "Gayle", "Richmond", "Retreat", "Castleton"
+      ]
+    },
+    {
+      "canonical": "St. Ann",
+      "aliases": [
+        "St. Ann", "St Ann", "Saint Ann", "ST. ANN", "ST ANN",
+        "STA",
+        "Ocho Rios", "Ocho Rios STA", "Browns Town",
+        "St. Ann's Bay", "St Ann's Bay", "Saint Ann's Bay",
+        "Discovery Bay", "Runaway Bay", "Priory", "Claremont",
+        "Alexandria", "Moneague"
+      ]
+    },
+    {
+      "canonical": "Trelawny",
+      "aliases": [
+        "Trelawny", "TRELAWNY", "TRE", "TRL",
+        "Falmouth", "Falmouth TRE",
+        "Duncans", "Ulster Spring", "Stewart Town",
+        "Clark's Town", "Clarks Town", "Wait-A-Bit", "Bunkers Hill"
+      ]
+    },
+    {
+      "canonical": "St. James",
+      "aliases": [
+        "St. James", "St James", "Saint James", "ST. JAMES", "ST JAMES",
+        "STJ",
+        "Montego Bay", "Montego Bay STJ", "MoBay", "Mo-Bay",
+        "Rose Hall", "Ironshore", "Reading", "Anchovy",
+        "Cambridge", "Lethe", "Somerton",
+        "Montego Bay Freeport", "MBJ"
+      ]
+    },
+    {
+      "canonical": "Hanover",
+      "aliases": [
+        "Hanover", "HANOVER", "HAN",
+        "Lucea", "Green Island", "Sandy Bay",
+        "Hopewell", "Tryall", "Davis Cove", "Mosquito Cove",
+        "Cascade", "Dias"
+      ]
+    },
+    {
+      "canonical": "Westmoreland",
+      "aliases": [
+        "Westmoreland", "WESTMORELAND", "WML", "WMO",
+        "Savanna-la-Mar", "Savanna la Mar", "Sav-la-Mar", "Sav La Mar", "Savlamar",
+        "Negril", "Whitehouse", "Frome", "Petersfield",
+        "Bluefields", "Darliston", "Grange Hill"
+      ]
+    },
+    {
+      "canonical": "St. Elizabeth",
+      "aliases": [
+        "St. Elizabeth", "St Elizabeth", "Saint Elizabeth", "ST. ELIZABETH", "ST ELIZABETH",
+        "STE",
+        "Black River", "Santa Cruz", "Malvern",
+        "Treasure Beach", "Balaclava", "Southfield",
+        "Lacovia", "Junction", "Newell", "Pedro Plains"
+      ]
+    },
+    {
+      "canonical": "Manchester",
+      "aliases": [
+        "Manchester", "MANCHESTER", "MAN",
+        "Mandeville", "Christiana", "Porus",
+        "Spalding", "Mile Gully", "Spur Tree",
+        "Williamsfield", "Newport"
+      ]
+    },
+    {
+      "canonical": "Clarendon",
+      "aliases": [
+        "Clarendon", "CLARENDON", "CLA", "CLR",
+        "May Pen", "Lionel Town", "Chapelton",
+        "Frankfield", "Smithville", "Hayes",
+        "Kellits", "Toll Gate", "Rock River",
+        "Clarendon Park", "Port Esquivel"
+      ]
+    }
+  ],
+  "_note": "Canonical parish names with common Gleaner notations, sub-area names, abbreviations, and regional identifiers used in Jamaica classified advertisements"
+}
